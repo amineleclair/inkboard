@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - InkBoard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="text-center py-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-4 fw-bold mb-0">
+                    <i class="fas fa-terminal me-2"></i>
+                    INKBOARD
+                </h1>
+                <div class="user-info">
+                    <span class="me-3">Welcome, {{ user.username }}!</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-neon btn-sm">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        LOGOUT
+                    </a>
+                </div>
+            </div>
+            <p class="lead cyber-subtitle">// NEURAL STORY GENERATOR //</p>
+            
+            <!-- Dashboard Navigation -->
+            <div class="dashboard-nav mt-4">
+                <button class="btn btn-outline-light btn-nav me-2 active" onclick="inkBoard.showSection('create')">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    CREATE STORY
+                </button>
+                <button class="btn btn-outline-light btn-nav me-2" onclick="inkBoard.showSection('gallery')">
+                    <i class="fas fa-palette me-2"></i>
+                    GALLERY
+                </button>
+                <button class="btn btn-outline-light btn-nav" onclick="inkBoard.showSection('journal')">
+                    <i class="fas fa-journal-whills me-2"></i>
+                    JOURNAL
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <!-- Create Story Section -->
+            <div id="create-section" class="dashboard-section">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card input-card">
+                            <div class="card-body p-4">
+                                <h2 class="card-title text-center mb-4">
+                                    <i class="fas fa-magic me-2"></i>
+                                    CREATE YOUR STORY
+                                </h2>
+                                
+                                <form id="scene-form" class="needs-validation" novalidate>
+                                    <div class="mb-4">
+                                        <label for="scene-input" class="form-label pixel-label">
+                                            <i class="fas fa-lightbulb me-2"></i>
+                                            SCENE DESCRIPTION
+                                        </label>
+                                        <textarea 
+                                            class="form-control pixel-input scene-input" 
+                                            id="scene-input" 
+                                            rows="3" 
+                                            placeholder="Describe your scene... (e.g., a lonely lighthouse on a stormy night)"
+                                            required>
+                                        </textarea>
+                                        <div class="invalid-feedback">
+                                            Please describe your scene idea.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center">
+                                        <button type="submit" class="animate-btn" id="generate-btn">
+                                            <span class="btn-text">
+                                                <i class="fas fa-wand-magic-sparkles me-2"></i>
+                                                GENERATE STORY
+                                            </span>
+                                            <div class="spinner-border spinner-border-sm d-none ms-2" role="status"></div>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Result Display -->
+                <div id="result-container" class="mt-4 d-none">
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
+                            <div class="card result-card">
+                                <div class="card-body">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-scroll me-2"></i>
+                                        YOUR STORY
+                                    </h3>
+                                    <div id="story-content" class="story-text mb-4"></div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div id="image-container" class="image-container mb-3">
+                                                <!-- Generated image will appear here -->
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="story-actions">
+                                                <button class="btn btn-outline-neon btn-sm mb-2" onclick="inkBoard.openJournal()">
+                                                    <i class="fas fa-journal-whills me-2"></i>
+                                                    ADD TO JOURNAL
+                                                </button>
+                                                <button class="btn btn-outline-neon btn-sm" onclick="inkBoard.downloadImage()">
+                                                    <i class="fas fa-download me-2"></i>
+                                                    DOWNLOAD IMAGE
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery Section -->
+            <div id="gallery-section" class="dashboard-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="text-center mb-4">
+                            <i class="fas fa-palette me-2"></i>
+                            YOUR GALLERY
+                        </h2>
+                        <div id="gallery-grid" class="row">
+                            <!-- Gallery items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal Section -->
+            <div id="journal-section" class="dashboard-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="text-center mb-4">
+                            <i class="fas fa-journal-whills me-2"></i>
+                            YOUR JOURNAL
+                        </h2>
+                        <div id="journal-entries" class="row">
+                            <!-- Journal entries will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Journal Modal -->
+    <div class="modal fade" id="journalModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-journal-whills me-2"></i>
+                        ADD JOURNAL ENTRY
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="journal-form">
+                        <div class="mb-3">
+                            <label for="journal-text" class="form-label pixel-label">YOUR THOUGHTS</label>
+                            <textarea 
+                                class="form-control pixel-input" 
+                                id="journal-text" 
+                                rows="5" 
+                                placeholder="Write your thoughts about this story...">
+                            </textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-neon me-2" data-bs-dismiss="modal">
+                                CANCEL
+                            </button>
+                            <button type="submit" class="btn animate-btn">
+                                <i class="fas fa-save me-2"></i>
+                                SAVE ENTRY
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <script>
+        // Initialize InkBoard when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            window.inkBoard = new InkBoard();
+        });
+    </script>
+</body>
+</html>
